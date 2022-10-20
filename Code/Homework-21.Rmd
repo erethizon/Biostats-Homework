@@ -20,3 +20,38 @@ For today's assignment, please do the following:
 - When you are finished, commit and push your changes to github and then send me a message in the #homework channel on slack that includes the link to your github homework repository.
 
 - Pat yourself on the back, grab a preferred beverage, and feel all-powerful! You just crushed an important open science skill by sharing your code on github!
+
+Let's set things up:
+```{r}
+rm(list = ls())
+library(here)
+library(ggplot2)
+library(dplyr)
+
+compensation <- read.csv(here("Data", "compensation.csv"))
+```
+## Data Visualization (the theme of this chapter)
+
+### Create a scatterplot
+We are going to work on three plot types, the first of which is the scatterplot:
+
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
