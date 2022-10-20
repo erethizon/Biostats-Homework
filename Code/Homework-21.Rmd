@@ -1,0 +1,22 @@
+---
+title: "Biostats - Homework 21"
+output: html_notebook
+---
+
+The goal of this homework was twofold:
+1. Practice using a github workflow
+2. Begin learning to make plots in RStudio
+
+From the assignment on canvas:
+
+For today's assignment, please do the following:
+
+- In your homework project on RStudio server (the above-mentioned one that is linked to github), create a new .Rmd file in your Code folder called Homework-21.Rmd
+
+- Go through Chapter 4 of Getting Started With R and write out all the code from the chapter in your .Rmd file.
+
+- You will need the compensation dataset (used in prior GSWR homeworks) to complete this exercise. Place a copy of the compensation dataset in the Data folder for your project and point to it when you load your dataframe.
+
+- When you are finished, commit and push your changes to github and then send me a message in the #homework channel on slack that includes the link to your github homework repository.
+
+- Pat yourself on the back, grab a preferred beverage, and feel all-powerful! You just crushed an important open science skill by sharing your code on github!

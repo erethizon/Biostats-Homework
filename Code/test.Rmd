@@ -1,9 +1,0 @@
----
-title: "test merge conflict"
-output: html_notebook
----
-
-I'm trying to make a merge conflict.Gus would like some oatmeal and, really, so would I.
-
-I'm trying to make a merge conflict. Pizza pizza yum yum!
-
