@@ -101,4 +101,26 @@ ggplot(compensation, aes(x = Root, y = Fruit, color = Grazing))+
      ylab("Fruit production")
      theme_bw()
 ```
+## 4.3 Box and whisker plots
+It is often useful to plot your data in such a way as to see the trends in terms of central tendency (mean, median, etc) and variability (standard deviation, variance, etc)
+
+Let's start by looking just at the fruit production data in the compensation data set.
+
+```{r}
+ggplot(compensation, aes(x = Grazing, y = Fruit))+
+     geom_boxplot()+
+     xlab("Grazing treatment")+
+     ylab("Fruit production")+
+     theme_bw()
+```
+Now let's add the raw data over the boxplot
+```{r}
+ggplot(compensation, aes(x = Grazing, y = Fruit))+
+     geom_boxplot()+
+     geom_point(size = 4, color = "lightgray", alpha = 0.5)+
+     xlab("Grazing treatment")+
+     ylab("Fruit production")+
+     theme_bw()
+```
+
 
