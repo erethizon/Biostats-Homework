@@ -3,25 +3,24 @@ title: "Biostats - Homework 21"
 output: html_notebook
 ---
 
-The goal of this homework was twofold:
-1. Practice using a github workflow
-2. Begin learning to make plots in RStudio
+The goal of this homework was twofold: 1. Practice using a github workflow 2. Begin learning to make plots in RStudio
 
 From the assignment on canvas:
 
 For today's assignment, please do the following:
 
-- In your homework project on RStudio server (the above-mentioned one that is linked to github), create a new .Rmd file in your Code folder called Homework-21.Rmd
+-   In your homework project on RStudio server (the above-mentioned one that is linked to github), create a new .Rmd file in your Code folder called Homework-21.Rmd
 
-- Go through Chapter 4 of Getting Started With R and write out all the code from the chapter in your .Rmd file.
+-   Go through Chapter 4 of Getting Started With R and write out all the code from the chapter in your .Rmd file.
 
-- You will need the compensation dataset (used in prior GSWR homeworks) to complete this exercise. Place a copy of the compensation dataset in the Data folder for your project and point to it when you load your dataframe.
+-   You will need the compensation dataset (used in prior GSWR homeworks) to complete this exercise. Place a copy of the compensation dataset in the Data folder for your project and point to it when you load your dataframe.
 
-- When you are finished, commit and push your changes to github and then send me a message in the #homework channel on slack that includes the link to your github homework repository.
+-   When you are finished, commit and push your changes to github and then send me a message in the #homework channel on slack that includes the link to your github homework repository.
 
-- Pat yourself on the back, grab a preferred beverage, and feel all-powerful! You just crushed an important open science skill by sharing your code on github!
+-   Pat yourself on the back, grab a preferred beverage, and feel all-powerful! You just crushed an important open science skill by sharing your code on github!
 
 Let's set things up:
+
 ```{r}
 rm(list = ls())
 library(here)
@@ -30,28 +29,76 @@ library(dplyr)
 
 compensation <- read.csv(here("Data", "compensation.csv"))
 ```
+
 ## Data Visualization (the theme of this chapter)
 
-### Create a scatterplot
-We are going to work on three plot types, the first of which is the scatterplot:
+### 4.2 ggplot2: a grammar for graphics
+
+We are going to work on three plot types, scatterplots, box and whisker plots, and histograms. The first is the scatterplot.
+
+#### 4.2.1 Making a picture - scatterplots
+
+Code for a scatterplot using the ggplot2 package:
 
 ```{r}
 ggplot(compensation, aes(x = Root, y = Fruit))+
      geom_point()
 ```
 
+#### 4.2.2 Interpret, then customize
 
+Looking at the scatterplot, we see the expected relationshiop between rootstock width and fruit production and we can see two groups, the grazed and ungrazed treatements. Let's see if we can bring out the trends more clearly.
 
+#### 4.2.3 That gray background
 
+Some people love and others hate the default gray background. We can get rid of it easily by placing a theme as the last component of our ggplot code.
 
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point()+
+     theme_bw()
+```
 
+Next, let's increase the size of the points:
 
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point(size = 5)+ #add code to increase size of points
+     theme_bw()
+```
 
+Now we can change the x and y axis labels using `xlab()` and `ylab()`
 
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
 
-
-
-
-
-
+Now let's look at how to adjust the colors of the points to match specific levels in a group.
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit, color = Grazing))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
+We can also change the shape of the points based on treatment group
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit, shape = Grazing))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
+But let's go back to the color plot:
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit, color = Grazing))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
 
