@@ -141,6 +141,34 @@ ggplot(compensation, aes(x = Fruit))+
      geom_histogram()
 
 ```
+So let's change the bins, as per the instructions.
+
+First, change the number of bins
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram(bins = 10)
+```
+Or we could change the width of each bin
+
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram(binwidth = 15)
+```
+### 4.4.1 A nifty tool: Facets
+We can produce a number of subplots based on some aspect of the data via *faceting* using the `facet_wrap()` function.
+
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram(binwidth = 15)+
+     facet_wrap(~Grazing)
+```
+## 4.5 Saving your graphs
+So we learned to make a scatterplot, box and whisker plot, and histogram. What if we want to save one to use in a report?  We can do so in a variety of ways, including with `ggsave()`
+
+```{r}
+ggsave(here("Code", "thatcoolhistogramoffruit.png"))
+```
+
 
 - 
 
