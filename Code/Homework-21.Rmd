@@ -122,5 +122,25 @@ ggplot(compensation, aes(x = Grazing, y = Fruit))+
      ylab("Fruit production")+
      theme_bw()
 ```
+#### 4.3.1 Interpretive contemplation
+Time to actually look at the data and interpret them:
+1. Do plants with wider root diameters at the start of the experiment produce more fruit?
+2. Do grazed or ungrazed plants produce more fruit?
 
+## 4.4 Distributions: making histograms of numeric variables
+Looking at the distribution of numeric variables can help us to see:
+- Clues abut the shape of the distribution
+- clues about central tendency and spread
+- whether there my be rather extreme values that are possible outliers
+
+We plot histograms using `geom_histogram()`
+
+Let's make a histogram of fruit production:
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram()
+
+```
+
+- 
 
