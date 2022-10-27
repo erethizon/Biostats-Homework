@@ -1,0 +1,161 @@
+---
+title: "Homework 23 - 26 October 2022"
+output: html_document
+date: "2022-10-27"
+---
+
+Homework 23 ask you to work through the first half of GSWR chapter 5. Here we go!
+
+Set things up:
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+## 5.1 Getting started doing statistics
+
+*Emphasis* is to **Always** start with a picture. We do so because we should already have an expected pattern in our data and a picture is a good way to begin thinking about that expectation formally.
+
+The book presents this as their philosophy on analytical workflow:
+1. Plot the data and look at expected relationships
+2. Translate your hypothesis into a statistical model and that model into R code
+3. Before interpreting the results, ASSESS the assumptions of your model.
+4. AFTER you have assessed model assumptions, you can interpret the output of your statistical results by interpreting the test statistic and associated p-value.
+5. Integrate the modeling results into your original figure (adding predicted for fitted lines/points to your graph)
+
+We will cover 4 simple statistical tests
+
+### 5.1.1. Getting ready for some statistics
+The following instructions do not flesh out the statistical details of the tests that are being presented.
+
+## 5.2 X2 contingency tables
+- test of count data
+- examines association among 2+ categorical variables
+
+### 5.2.1. The data: ladybirds
+Black vs. red morph ladybird beetles in rural vs. industrial habitats.
+
+Null hypothesis: there is no association between ladybird colors and their habitat. 
+
+Pull in and examine the data
+
+```{r}
+lady <-read.csv(here("Data", "ladybirds.csv"))
+glimpse(lady)
+```
+
+Note that in the book, the data came in as factor for Habitat, Site and number so I will convert them here.
+
+```{r}
+lady$Habitat <- as.factor(lady$Habitat)
+lady$Site <- as.factor(lady$Site)
+lady$colour <-as.factor(lady$colour)
+glimpse(lady)
+```
+
+So lets use group_by and summarise to organize the data
+
+```{r}
+totals <- lady %>% group_by(Habitat, colour) %>% summarise(total.number = sum(number))
+```
+
+Because we have count data, this is a time when using a bar graph is ok.
+
+```{r}
+ggplot(totals, aes(x = Habitat, y = total.number, fill = colour))+
+     geom_bar(stat = "identity", position = "dodge")
+```
+### 5.2.4. Let's fix the graph colors
+It would be nice if, since we have red and black lady bird beetle morphs, the bars corresponded instead of using the default R colors. Let's fix that.
+
+```{r}
+ggplot(totals, aes(x = Habitat, y = total.number, fill = colour))+
+     geom_bar(stat = "identity", position = "dodge")+
+     scale_fill_manual(values = c(black = "black", red = "red"))
+```
+### 5.2.5 Interpreting the graph (guess the answer before we do stats!)
+Black morph looks more common in industrail and red in rural settings. We expect to REJECT the null that morphs are distributed equally between the two habitats.
+
+### 5.2.6 Making the X2 test
+We need to get a matrix of total counts to feed to the `chisq.test()` function.
+
+A matrix is not the same as a data frame.  `dplyr` yields data frames. So we need a different approach.
+
+We will use the function `xtabs()` to do so:
+
+```{r}
+lady.mat <- xtabs(number ~ Habitat + colour, data = lady)
+lady.mat
+```
+
+Now we can run the test
+```{r}
+chisq.test(lady.mat)
+```
+
+How do we interpre this? There is a very small chance that we are seeing more black bugs in industrial and more red in rural habitats by chance. So we can reject our null hypothesis of no difference and state that there is an association between color morph abundance and habitat type.
+
+## 5.3 Two-sample t-test
+A two-sample t-test compares the means of two groups of numeric (read continuous) values. It is appropriate when the sample sizes in each group are small and assumes that the data in each group are normally distributed and that their variances are equal.
+
+### 5.3.1 The t-test data
+Ozone levels of gardens around a city. Gardens are either west or east of the city center. Data are ozone concentrations in parts per hundred million. Ozone > 8 pphm can damage lettuce plants. 
+
+Read in and examine the data
+
+```{r}
+ozone <- read.csv(here("Data", "ozone.csv"))
+glimpse(ozone)
+```
+
+Again, the book has Garden.location and Garden.ID as factors so let's do that:
+
+```{r}
+ozone$Garden.ID<-as.factor(ozone$Garden.ID)
+ozone$Garden.location<-as.factor(ozone$Garden.location)
+glimpse(ozone)
+```
+
+### 5.3.2 Plot your data
+We'll plot two histograms on top of each other to see if it looks like their means are the same:
+
+```{r}
+ggplot(ozone, aes(x = Ozone))+
+     geom_histogram(binwidth=10)+
+     facet_wrap(~Garden.location, ncol = 1)+
+     theme_bw()
+```
+At first glance, it looks like the assumptions of normality and equality of variance has been met.
+
+Though the chapter doesn't give you the code, it suggests that you should be able to calculate the means and standard errors of ozone levels in each location. Let's do it here.
+
+Standard error is standard deviation  divided by square root of sample size
+```{r}
+ozone_means<-ozone %>% group_by(Garden.location) %>% summarise(
+     mean_ozone = mean(Ozone,na.rm = TRUE), 
+     sem_ozone = (sd(Ozone, na.rm = TRUE)/sqrt(length(Ozone)))
+     
+)
+```
+
+### 5.3.3 The two-sample t-test analysis
+Now let's do the t-test
+```{r}
+t.test(Ozone ~Garden.location, data = ozone)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
