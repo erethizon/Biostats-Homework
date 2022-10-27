@@ -1,0 +1,174 @@
+---
+title: "Biostats - Homework 21"
+output: html_notebook
+---
+
+The goal of this homework was twofold: 1. Practice using a github workflow 2. Begin learning to make plots in RStudio
+
+From the assignment on canvas:
+
+For today's assignment, please do the following:
+
+-   In your homework project on RStudio server (the above-mentioned one that is linked to github), create a new .Rmd file in your Code folder called Homework-21.Rmd
+
+-   Go through Chapter 4 of Getting Started With R and write out all the code from the chapter in your .Rmd file.
+
+-   You will need the compensation dataset (used in prior GSWR homeworks) to complete this exercise. Place a copy of the compensation dataset in the Data folder for your project and point to it when you load your dataframe.
+
+-   When you are finished, commit and push your changes to github and then send me a message in the #homework channel on slack that includes the link to your github homework repository.
+
+-   Pat yourself on the back, grab a preferred beverage, and feel all-powerful! You just crushed an important open science skill by sharing your code on github!
+
+Let's set things up:
+
+```{r}
+rm(list = ls())
+library(here)
+library(ggplot2)
+library(dplyr)
+
+compensation <- read.csv(here("Data", "compensation.csv"))
+```
+
+## Data Visualization (the theme of this chapter)
+
+### 4.2 ggplot2: a grammar for graphics
+
+We are going to work on three plot types, scatterplots, box and whisker plots, and histograms. The first is the scatterplot.
+
+#### 4.2.1 Making a picture - scatterplots
+
+Code for a scatterplot using the ggplot2 package:
+
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point()
+```
+
+#### 4.2.2 Interpret, then customize
+
+Looking at the scatterplot, we see the expected relationshiop between rootstock width and fruit production and we can see two groups, the grazed and ungrazed treatements. Let's see if we can bring out the trends more clearly.
+
+#### 4.2.3 That gray background
+
+Some people love and others hate the default gray background. We can get rid of it easily by placing a theme as the last component of our ggplot code.
+
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point()+
+     theme_bw()
+```
+
+Next, let's increase the size of the points:
+
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point(size = 5)+ #add code to increase size of points
+     theme_bw()
+```
+
+Now we can change the x and y axis labels using `xlab()` and `ylab()`
+
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
+
+Now let's look at how to adjust the colors of the points to match specific levels in a group.
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit, color = Grazing))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
+We can also change the shape of the points based on treatment group
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit, shape = Grazing))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
+But let's go back to the color plot:
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit, color = Grazing))+
+     geom_point(size = 5)+
+     xlab("Root biomass")+
+     ylab("Fruit production")
+     theme_bw()
+```
+## 4.3 Box and whisker plots
+It is often useful to plot your data in such a way as to see the trends in terms of central tendency (mean, median, etc) and variability (standard deviation, variance, etc)
+
+Let's start by looking just at the fruit production data in the compensation data set.
+
+```{r}
+ggplot(compensation, aes(x = Grazing, y = Fruit))+
+     geom_boxplot()+
+     xlab("Grazing treatment")+
+     ylab("Fruit production")+
+     theme_bw()
+```
+Now let's add the raw data over the boxplot
+```{r}
+ggplot(compensation, aes(x = Grazing, y = Fruit))+
+     geom_boxplot()+
+     geom_point(size = 4, color = "lightgray", alpha = 0.5)+
+     xlab("Grazing treatment")+
+     ylab("Fruit production")+
+     theme_bw()
+```
+#### 4.3.1 Interpretive contemplation
+Time to actually look at the data and interpret them:
+1. Do plants with wider root diameters at the start of the experiment produce more fruit?
+2. Do grazed or ungrazed plants produce more fruit?
+
+## 4.4 Distributions: making histograms of numeric variables
+Looking at the distribution of numeric variables can help us to see:
+- Clues abut the shape of the distribution
+- clues about central tendency and spread
+- whether there my be rather extreme values that are possible outliers
+
+We plot histograms using `geom_histogram()`
+
+Let's make a histogram of fruit production:
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram()
+
+```
+So let's change the bins, as per the instructions.
+
+First, change the number of bins
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram(bins = 10)
+```
+Or we could change the width of each bin
+
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram(binwidth = 15)
+```
+### 4.4.1 A nifty tool: Facets
+We can produce a number of subplots based on some aspect of the data via *faceting* using the `facet_wrap()` function.
+
+```{r}
+ggplot(compensation, aes(x = Fruit))+
+     geom_histogram(binwidth = 15)+
+     facet_wrap(~Grazing)
+```
+## 4.5 Saving your graphs
+So we learned to make a scatterplot, box and whisker plot, and histogram. What if we want to save one to use in a report?  We can do so in a variety of ways, including with `ggsave()`
+
+```{r}
+ggsave(here("Code", "thatcoolhistogramoffruit.png"))
+```
+
+
+- 
+
