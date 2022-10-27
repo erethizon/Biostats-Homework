@@ -1,0 +1,98 @@
+---
+title: "Homework 14 - Using dplyr to fix mistakes"
+output: html_notebook
+---
+
+Today's homework is designed to help you reinforce concepts from GSWR Chapter 3 and to push you to apply functions from the dplyr package more independently. You will use the attached data set about testing two drugs for effectiveness as antibiotics.
+
+Set up your session by writing a code block with the "usual" material near the top of your .Rmd file.
+Import the data using read.csv but without stringsAsFactors = TRUE and name the data frame "DF"  
+
+Set things up and bring in the data
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+
+DF <- read.csv(here("Data", "Homework Data", "drug_resistance.csv"))
+```
+
+Run a summary of DF and see what it tells you.
+
+```{r}
+summary(DF)
+```
+Now import the data again, still using read.csv but this time adding stringsAsFactors = TRUE. Again name the dataframe DF. It will write over the first data frame you imported. Run a summary of DF and see how it differs from the first time you ran it.
+
+```{r}
+DF <- read.csv(here("Data", "Homework Data", "drug_resistance.csv"), stringsAsFactors = TRUE)
+summary(DF)
+```
+
+Make some notes in your .Rmd file about how the summary() command reacts to data that do vs. do not have explicit factor variables in the data set.
+
+When the data are structured upon import to have factors, the summary function is able to provide more information about those variables than when they are imported as character data.
+
+Now use either the function unique() or levels() to examine each of the text-based columns of data. In which variables do you see errors?
+
+```{r}
+unique(DF$Treatment)
+unique(DF$tech.name)
+```
+Errors are present in:
+
+- Treatment. It shows 9 levels but should only have 3 (control, drug x 2 and drug x 3)
+
+- tech.name has errors. Brian and Becca are spelled multiple ways. There should just be: jose, brian, mary and becca.
+
+Using the techniques we discussed in class, repair the data set so that there are the appropriate number of choices for each of the character/factor variables.
+
+Let's start with Treatment. 
+
+```{r}
+unique(DF$Treatment)
+```
+Find all the cases of Control and cantrol and make them all control
+
+```{r}
+fix <- which(DF$Treatment == "Control"|DF$Treatment == "cantrol")
+DF$Treatment[fix]<- "control"
+unique(DF$Treatment)
+```
+Now work on the drug treatments
+```{r}
+fix <- which(DF$Treatment == "Drugx2"| DF$Treatment == "drug2")
+DF$Treatment[fix] <- "drug x 2"
+unique(DF$Treatment)
+
+fix <- which(DF$Treatment == "drug3" | DF$Treatment == "Drug x 3")
+DF$Treatment[fix] <- "drug x 3"
+unique(DF$Treatment)
+```
+Notice that R still thinks there are 9 levels. We need to relevel them by making Treatment a factor variable again.
+```{r}
+DF$Treatment <-factor(DF$Treatment)
+levels(DF$Treatment)
+```
+Now use similar steps to fix the tech names
+```{r}
+unique(DF$tech.name)
+```
+
+```{r}
+fix <- which(DF$tech.name == "Brian" | DF$tech.name == "brain")
+
+DF$tech.name[fix]<-"brian"
+
+fix <- which(DF$tech.name == "Becca")
+DF$tech.name[fix] <- "becca"
+
+DF$tech.name <- factor(DF$tech.name)
+levels(DF$tech.name)
+```
+
+
+
+
+

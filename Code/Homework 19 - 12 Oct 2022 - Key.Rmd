@@ -1,0 +1,81 @@
+---
+title: "Homework 19 - 12 Oct 2022"
+output: html_document
+date: "2022-10-27"
+---
+
+This is the key to homework 19, which asked each of you to do some R work to revisit material from Chapters 2 and 3 of the GSWR book.
+
+Let's set things up:
+```{r}
+rm(list = ls())
+library(dplyr)
+library(here)
+library(ggplot2)
+```
+
+And pull in some data
+
+```{r}
+Leaves <- read.csv(here("Data", "Class_leaf_measurements.csv"))
+```
+
+Now use the `str()` function to examine the dataset
+
+```{r}
+str(Leaves)
+```
+
+Now let's take a look at column names
+```{r}
+names(Leaves)
+```
+
+Some of these column names are frustratingly non-informative. Let's fix them.
+
+```{r}
+names(Leaves)<- c("Tree_num", "Species", "Leaf_num", "DBH_cm", "petiole_length_cm", "total_length_cm", "middle_lobe_length_cm", "middle_lobe_width_cm", "person")
+names(Leaves)
+```
+
+Much better!
+
+Now convert species to a factor and determine the number of levels in the factor.
+
+```{r}
+Leaves$Species<-as.factor(Leaves$Species) #convert to factor data type
+levels(Leaves$Species) #view levels of factor
+```
+
+We have many inaccuracies in how species names are recorded, so we need to fix them. We will do so with the `which()` function and indexing.
+
+```{r}
+Norway<-which(Leaves$Species == "Norway mapel" | Leaves$Species == "Norway Maple")
+Leaves$Species[Norway] <- "Norway maple"
+Red <- which (Leaves$Species == "red maple" | Leaves$Species == "Red Maple" | Leaves$Species == "red maple")
+Leaves$Species[Red] <- "Red maple"
+Sugar <- which (Leaves$Species == "sugar maple" | Leaves$Species == "Sugar Maple" )
+Leaves$Species[Sugar] <- "Sugar maple"
+Leaves$Species <- factor(Leaves$Species) #reset the factor levels
+levels(Leaves$Species) #check that it worked
+```
+
+Now create a new dataset by subseting to get only the sugar maple data and so that you leave out the Person, Leaf number and tree number variables. Save the result as "Sugar"
+
+```{r}
+Sugar <- Leaves %>% filter(Species == "Sugar maple") %>% select(-person, -Leaf_num, -Tree_num)
+```
+
+Finally, you were asked to create a histogram of petiole lengths in the Sugar data set.
+
+```{r}
+ggplot(Sugar, aes(x = petiole_length_cm))+
+     geom_histogram()
+```
+
+
+
+
+
+
+

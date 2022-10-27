@@ -1,0 +1,199 @@
+---
+title: "GSWR Chapter 3 Exercise 1"
+author: "Erika Barthelmess"
+date: "26 Sept 2022"
+output: html_document
+---
+
+## Introduction
+Homework 11 in Biostatistics is to work through the examples in Getting Started With R ("GSWR") Chapter 3, not including the appendix. You are instructed to use a .Rmd rather than .R file, and are instructed to work on separating your thinking as a student/scientist from your thinking as a coder.
+
+## Step 1. Set things up
+Add a code chunk that has the basic set up features we've been learning from GSWR and in class.
+
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+The chapter uses the compensation data set, so start by pulling it in.
+
+```{r}
+compensation <-read.csv(here("Data", "Homework data", "compensation.csv"))
+```
+## 3.1 Summary statistics for each variable
+3.1.1. The compensation dataset is about the production of fruit (apples, in kg) on rootstocks of different widths (mm; the tops are grafted onto rootstocks). Some tree are in a part of the orchard that includes cattle grazing and others are free from grazing. 
+
+### 3.1.2. The `summary()` function 
+We can use the `summary()` function to learn about each variable in a dataset.
+
+First we'll `glipmse()` the dataset and then use `summary()` to summarize the variables.
+
+```{r}
+glimpse(compensation)
+summary(compensation)
+```
+Note that the newer version of `read.csv` does not automatically bring strings in as factors, so in our example Grazing comes in as character whereas in the book it comes in as a factor variable with two levels Grazed and Ungrazed. We can use `stringsAsFactors = TRUE` to change that.
+
+```{r}
+compensation <-read.csv(here("Data", "Homework data", "compensation.csv"), stringsAsFactors = TRUE)
+summary(compensation)
+```
+Now it looks the same as in the book.
+
+## 3.2 `dplyr` verbs.
+Let's look at 5 functions from the `dplyr` package; all are verbs because they do things to the data frame. Let's examine:
+
+- `select()`; selects columns
+
+- `slice()`; selects rows
+
+- `filter()`; selects subsets of rows
+
+- `arrange()`; sorts rows
+
+- `mutate()`; creates new variables in the data frame
+
+Remember that the first argument to *all* of the `dplyr` functions is the dataframe.
+
+## 3.3 Subsetting
+`select()`, `slice()` and `filter()` are the functions that help to subset the data.
+
+### 3.3.1 `select()`
+We use `select()` to grab columns of the data frame. 
+
+Use `select()` to get the Fruit column
+```{r}
+select(compensation, Fruit) #first argument is dataframe, second is column to select
+```
+We can also use `select()` to get all columns *except* for one, as:
+```{r}
+select(compensation, -Root)#grabs all columns except Root
+```
+### 3.3.2 `slice()`
+We use the `slice()` function to grab rows of data.
+
+To get the second row of data, try:
+```{r}
+slice(compensation, 2)
+```
+Now grab the second to the 10th rows:
+```{r}
+slice(compensation, 2:10)
+```
+We can also slice discontinuous rows but need to use the `c()` function in conjunction:
+```{r}
+slice(compensation, c(2,3,10))
+```
+### 3.3.3 `filter()`
+We use the `filter()` function to subset parts of the dataframe by filtering based on properties of the data, which requires using logical operators and booleans.
+
+#### Logical operators and booleans
+```{r}
+with(compensation, Fruit > 80)
+```
+The `with()` function tells R to look inside a data frame, do what comes next, and then stop looking.
+
+The `>` symbol is a logical operator. On its own, it results in true or false.
+
+#### Now let's use `filter()`
+Find the rows where it is true that Fruit is > 80 kg and return them as a data frame
+```{r}
+filter(compensation, Fruit > 80)
+```
+We can select rows that meet multiple conditions in several ways, first using the OR symbol |
+```{r}
+filter(compensation, Fruit > 80 | Fruit < 20)
+```
+### 3.3.4 Making sure you can USE the subset of data
+If you want to use the result of these verbs (e.g. `slice`, `select`, `filter`), you need to assign them to variables with the assignment operator `<-`
+
+Make a new variable called `lo_hi_fruit` that includes all the rows with Fruit > 80 or Fruit < 20
+```{r}
+lo_hi_fruit <- filter(compensation, Fruit > 80 | Fruit < 20)
+#look at the result
+lo_hi_fruit
+```
+### 3.3.5 What should my script look like now?
+In contrast to the book, which makes use of .R scripts and not .Rmd files, your script should look more-or-less like this one, in that you are separating the narration from code comments by typing the narrative of your workflow and thought processes in markdown outside of code chunks and typing comments about your code following # symbols inside of code chunks.
+
+## 3.4 Transforming
+We have another dplyr verb to use that transforms rather than subsets our data. This verb is `mutate()` and it carn create new columns in the data frame.
+
+### 3.4.1 `mutate()`
+The `mutate()` function, like other `dplyr` verbs, takes the data frame as its first argument, and then designates the new column name and the transformation that generates the new column
+
+Let's demonstrate by generating a log transformation of the Fruit variable.
+
+First let's look at the start of the dataframe with `head`
+```{r}
+head(compensation) #display the first several rows
+```
+Now use `mutate()`
+```{r}
+compensation <- mutate(compensation, logFruit = log(Fruit))
+head(compensation)
+```
+## 3.5 Sorting data 
+Our final `dplyr` verb, `arrange()`, can be used to sort a data frame.
+
+Sometimes we need our rows of data in a particular order. We can do so with `arrange()`
+```{r}
+arrange(compensation, Fruit) #will order data by Fruit variable
+```
+## 3.6 Mini-summary and two top tips!
+Top tip #1. You can use more than one `dplyr` function in one line of code! Imagine you want fruit production > 80, and the rootstock widths ONLY. That's a `filter` and a `select`:
+```{r}
+select(filter(compensation, Fruit > 80), Root)
+```
+It might help to read that from the inside, out as filter the data by grabbing all the rows with Fruit > 80 and then just return the Root column.
+
+Top tip #2 - Piping!
+Built into dplyr is a special kind of magic called piping from the `magrittr` package. In R, the pip command is `%>%` and you can read it as "pu the answer of the left-hand command into the function on the right".
+
+Let's translate the 2-function command above into a piped sequence:
+```{r}
+compensation %>% filter(Fruit > 80) %>% select(Root)
+```
+## 3.7 Calcualating summary statistics about groups of your data
+Now you should be feeling confident! Now let's look at some functions that help us generate custom summaries of our data. When we have categorical data, we can use `group_by` and `summarise`
+
+### 3.7.1 Overview of summarization
+Summarization is accomplished by several steps. The core idea is, with `dplyr`, to:
+
+1. Declare the data frame and what the grouping variable is
+2. Provide some mathematical function with which to summarize the data (e.g. mean or sd)
+3. Provide a nice name for the values that are returned
+4. Make R use all of this information.
+
+Let's look at two methods
+
+### 3.7.2 Method 1: Nested, no pipe
+Let's take a look
+```{r}
+summarise(
+  group_by(compensation, Grazing), 
+          meanFruit = mean(Fruit)
+)
+```
+### 3.7.3 Method 2: Pipe, no nesting
+See how we get the same result
+```{r}
+compensation %>% group_by(Grazing) %>% summarise(meanFruit = mean(Fruit))
+```
+### 3.7.4 Summarizing and extending summarization
+`group_by` and `summarize` are very important and useful functions. You can ask for more than one statistic in one group_by and summarize call like this:
+
+```{r}
+compensation %>% group_by(Grazing) %>% summarise(
+  meanFruit = mean(Fruit),
+  sdFruit = sd(Fruit)
+)
+```
+## 3.8 What have you learned...lots
+Look how good you're getting!
+
+
+
+
