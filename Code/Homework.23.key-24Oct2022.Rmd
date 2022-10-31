@@ -9,3 +9,81 @@ Beginning Data Analysis - Data Visualization
 Using the soil data provided in today's course module, create a scatterplot, box plot and histogram for the SOM_percent column (which represents the % soil organic matter by weight in the soil sample).  Then create the same three plots for Ca ppm (parts per million soil calcium).  
 
 Construct these plots in a Homework23.Rmd file and push the changes to your GitHub repo. Send me a message in slack when you are finished.
+
+Set things up
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+
+soil<-read.csv(here("Data", "soil_data.csv"))
+```
+First, in order to create boxplots and compare them between forests, we need a forest variable. We're going to have to extract it from Field.Name
+
+```{r}
+soil$Field.Name<-as.factor(soil$Field.Name)
+levels(soil$Field.Name)
+```
+We can do this most easily with string matching
+```{r}
+library(stringr)
+DG<-str_detect(soil$Field.Name, "DEGRASSE")
+DGfix<-which(DG == TRUE)
+soil$Forest<-"forest"
+soil$Forest[DGfix]<-"Degrasse"
+
+DON<-str_detect(soil$Field.Name, "DONNERVILLE")
+DONfix<-which(DON == TRUE)
+soil$Forest[DONfix]<-"Donnerville"
+
+KT<-str_detect(soil$Field.Name, "KIP TRACT")
+KTfix<-which(KT == TRUE)
+soil$Forest[KTfix]<-"Kip Tract"
+
+PEA<-str_detect(soil$Field.Name, "PEAVINE")
+PEAfix<-which(PEA == TRUE)
+soil$Forest[PEAfix]<-"Peavine"
+
+SH<-str_detect(soil$Field.Name, "SOUTH HAMMOND")
+SHfix<-which(SH == TRUE)
+soil$Forest[SHfix]<-"South Hammond"
+
+soil$Forest<-as.factor(soil$Forest)
+levels(soil$Forest)
+```
+Create a scatterplot, box plot and histogram for the SOM_percent column
+
+Let's start with a histogram
+```{r}
+ggplot(soil, aes(x = Organic.Matter.. ))+
+     geom_histogram()
+```
+Now let's go for a boxplot
+```{r}
+ggplot(soil, aes(Forest,Organic.Matter.. ))+
+     geom_boxplot()
+```
+And now a scatter plot
+```{r}
+ggplot(soil, aes(x = Forest, y = Organic.Matter..))+
+     geom_point()
+```
+Now create same three plots for  Ca ppm (parts per million soil calcium). 
+
+```{r}
+ggplot(soil, aes(x = Ca.ppm))+
+     geom_histogram()
+```
+Scatterplot
+```{r}
+ggplot(soil, aes(Forest, Ca.ppm))+
+     geom_point()
+```
+Box plot
+```{r}
+ggplot(soil, aes(Forest, Ca.ppm))+
+     geom_boxplot()
+```
+
+
