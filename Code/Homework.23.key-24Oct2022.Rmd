@@ -1,0 +1,11 @@
+---
+title: "Homework 23 Key"
+author: "Erika Barthelmess"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Beginning Data Analysis - Data Visualization
+Using the soil data provided in today's course module, create a scatterplot, box plot and histogram for the SOM_percent column (which represents the % soil organic matter by weight in the soil sample).  Then create the same three plots for Ca ppm (parts per million soil calcium).  
+
+Construct these plots in a Homework23.Rmd file and push the changes to your GitHub repo. Send me a message in slack when you are finished.
