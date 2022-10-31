@@ -4,7 +4,7 @@ output: html_document
 date: "2022-10-27"
 ---
 
-Homework 23 ask you to work through the first half of GSWR chapter 5. Here we go!
+Homework 24 ask you to work through the first half of GSWR chapter 5. Here we go!
 
 Set things up:
 ```{r}

@@ -5,5 +5,123 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-Homework 24 asks you to work through the second half of Chapter 5 of the GSWR book.
+Homework 25 asks you to work through the second half of Chapter 5 of the GSWR book.
+
+## 5.4 Introducing linear models
+Now we move into something called "general linear models". They are a class of model that includes regression, multiple regression, ANOVA and ANCOVA. All are fundamentally linear models.
+
+Don't confuse a general linear model with a *generalized* linear model or GLM. 
+
+## 5.5 Simple linear regression
+Does plant growth rate vary with soil moisture content?
+
+Prediction: more moisture will likely allow higher growth rates. Note that the predictor (explanatory) variable is quantitative and not categorical.
+
+### 5.5.1 Getting a plotting the data.
+We are using a dataset from the book called plant.growth.rate.csv.
+
+Let's get going
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+
+plant_gr<-read.csv(here("Data", "plant.growth.rate.csv"))
+```
+
+Take a look at the data
+```{r}
+glimpse(plant_gr)
+```
+Two columns of numeric data. 
+
+Let's start with a scatter plot:
+```{r}
+ggplot(plant_gr, aes(soil.moisture.content, plant.growth.rate))+
+     geom_point()+
+     ylab("Plant growth rate (mm/week)")+
+     theme_bw()
+```
+### 5.5.2 Interpreting the figure: biological insight
+
+We notice that the slope is positive. We can also guestimate the slope and intercept from the figure.
+- Roughly speaking, the growth rate varies b/w 20 and 50 mm/week
+- Roughly speaking, soil moisture varies between 0 and 2
+
+Slope is rise/run, which in this case is about (50-20) = 30 for rise and 2 - 0 = 2 for run, so we get 30/2 = 15 as the slope. 
+
+Eyeballing the plot, we would also guess that the y-intercept is somewhere between 15 and 20 mm/week. 
+
+IT IS ALWAYS A GOOD IDEA TO EXAMINE YOUR DATA BEFORE THE ANALYSIS AND TO SEE IF YOU CAN APPROXIMATE SOME OF THE VALUES THAT WILL RESULT.
+
+## 5.5.3 Making a simple linear regression happen
+
+We use the `lm()` function...
+```{r}
+model_pgr <- lm(plant.growth.rate ~ soil.moisture.content, data = plant_gr)
+```
+
+Ok, the model has been fit. Before we look at the results, let's consider the assumptions.
+
+We need to use the ggfortify package and the autoplot() function within it. The book suggests adding ggfortify at our top-level script from here on out.
+
+```{r}
+library(ggfortify)
+autoplot(model_pgr, smooth.color = NA)
+```
+What does this all mean?
+Top left - residuals vs. fitted:
+
+Is a line appropriate to fit to the data (vs. a non-linear model)? - look for hump shapes or valleys. 
+
+Top right - Normal Q-Q plot:
+This evaluates the assumption that the residuals are normally distrubted. The dots are the residuals and the dashed line is the expected values under a normal distribtuion.  Basically, you want the dots to fall pretty close to the line (observed = expected).
+
+Bottom left - Scale - location:
+This evaluates the assumption of equal variance. The y-axis is a standardized (all positive) indicator of the variation. Linear models assume that the variance is constant over all predicted values of the response variable. There should be no pattern. (There might be a pattern, if, for instance, the variance increases with the mean as it might with count data).
+
+Bottom right - Residuals vs. leverage:
+This plot evaluates leverage, a tool that helps to detect influential data points and that also detects outliers. 
+
+What does `smooth.color = NA` do?  In the absence of this argument, the default presentation would be a wiggly line fitted by the regression. The NA suppresses that line.
+
+### 5.5.5 Now the interpretation
+
+Now that we know that our data meet the assumptions of a linear regression, we can look at and interpret the model.
+
+We use two tools that we will use for every general (and generalized) model here on out: `anova()` and `summary()`.
+
+`anova()` does not perform an ANOVA. Instead, it produces a classic anova table, the sums-of-squares table including the F-statistic, which is the ratio of variance explained by the explanatory variable  to the leftover variance. As well, it produces an estimate of R^2 and adjusted R^2.
+
+`summary()` is less confusing. It produces a table witht he estimates of the coefficients of the line that is the model: an intercept and a slope.  
+
+Take a look:
+
+```{r}
+anova(model_pgr)
+```
+And the summary table:
+```{r}
+summary(model_pgr)
+```
+### 5.5.6 From stats back to figure
+Now let's make a figure that shows off our relationship in light of our statistical results.
+
+```{r}
+ggplot(plant_gr, aes(soil.moisture.content, plant.growth.rate))+
+     geom_point()+
+     geom_smooth(method = "lm")+
+     ylab("Plant growth rate (mm/week)")+
+     theme_bw()
+```
+We can see that the `geom_smooth()` call allowed the computer to add the fitted values and the standard error of the fit to a figure.
+
+Don't expect `geom_smooth()` to work correctly for more complex models. 
+
+## 5.6. Analysis of variance: the one-way ANOVA
+
+
+
+
 
