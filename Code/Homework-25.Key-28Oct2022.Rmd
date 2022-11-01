@@ -120,8 +120,111 @@ We can see that the `geom_smooth()` call allowed the computer to add the fitted 
 Don't expect `geom_smooth()` to work correctly for more complex models. 
 
 ## 5.6. Analysis of variance: the one-way ANOVA
+In a one way ANOVA, the predictor (explanatory) variable is a factor (categorical) rather than a numeric variable.
 
+We'll use a dataset with **Daphnia** and their parasites. 
 
+### 5.6.1. Getting and plotting the data
 
+The dataset is called daphniagrowth.csv. Let's clean things up and read it in
+```{r}
+rm(list = ls()) #clear from R any of the code we've already been working on
+library(ggfortify)
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+Pull in the data
+```{r}
+daphnia <-read.csv(here("Data", "Daphniagrowth.csv"))
+daphnia$parasite<-as.factor(daphnia$parasite)
+```
+Our question has 2 parts: 1) in general, do parasites alter growth rates and 2) if so, whether each parasite reduces growth rate relative to the control.
 
+Let's make a box and whisker plot of growth as a function of parasite type.
+
+```{r}
+ggplot(daphnia, aes(parasite, growth.rate))+
+     geom_boxplot()+
+     theme_bw()
+```
+
+Now let's flip the coordinates to keep names from overlapping
+
+```{r}
+ggplot(daphnia, aes(parasite, growth.rate))+
+     geom_boxplot()+
+     coord_flip()+
+     theme_bw()
+```
+There appears to be a likely overall paraste effect and an ordering of the effect of parasite type on growth rate such that P. ramosa < M. bicuspidata < P. perplexa < control
+
+We can also estimate the average growth rate for each treatment:
+- control approx 1.2, P. perplexa c. 1.1, M. bicuspidata c. 0.8 and P. ramosa c. 0.55.
+
+- we can also figure out the degrees of freedom for the treatment and for error. Sample size minus the number of parameters we are estimating = 4 levels - 1 = 3 for the effect of parasites and 4 means from 40 samples = 36 for the error degrees of freedom.
+
+### 5.6.2 Construct the ANOVA 
+Again we use lm() to construct our model
+```{r}
+model_grow <- lm(growth.rate ~ parasite, data = daphnia)
+```
+
+### 5.6.3 Check the assumptions
+The assumptions in a one-way ANOVA and linear regression are the same, so we can use the same method with ggfortify and autoplot().
+
+```{r}
+autoplot(model_grow, smooth.color = NA)
+```
+
+These look fine. Let's move on.
+
+### Making an inference from a one-way ANOVA
+The anova() call will answer our first question of whether there is a general effect of the parasite treatment on daphnia growth rates.
+
+```{r}
+anova(model_grow)
+```
+
+The null hypothesis is that all of the groups have the same mean. The F-statistic quantifies how likely that is to be true. There is a very very small chance (p = 0.0000257) of obtaining this F statistic when the means are the same. Also, the F statistic is the ratio of the between-group variance to the within group variance. As the between-group variance increases, so does the F value.
+
+Our second question was what are the effects of the different parasites. There are different ways to answer this question - we will look at one that helps us understand how R presents coefficients of linear models with categorical explantory variables.  
+
+### Treatment contrasts (i.e. how we answer our 2nd question)
+Let's start by getting the summary table
+```{r}
+summary(model_grow)
+```
+We can look at the help for contr.treatment to see how R deals with contrasts
+
+```{r}
+?contr.treatment
+```
+Ok - so how do we interpret that contrast table?
+
+There are 4 rows in the table, and the first is labeled Intercept. Below it are the names of the three parasite treatments. 
+
+Pay attention to the alphabet with understanding how R presents coefficient contrasts. It defaults to presenting results in alphabetical order.
+
+The alphebetical ordering would be control < M. bicuspidata < P. perplexa < P. ramosa. Thus, the intercept in this case represents the control. It represents the first level, alphabetically, of the treatment levels, which, in this case, is the word "control" and thus the control is represented by the intercept.
+
+Treatment contrasts then represent the differences between the refrence level (in this case the control, but whatever the intercept represents) and the other levels. So, the numbers in the estimate column associated with each parasite are the difference between the mean of the control group and the mean of the specified parasite. 
+
+We can get the actual means using a group_by and summarize option, and, if we wanted, we could calculate the contrasts ourselves.
+
+```{r}
+sumDat <- daphnia %>% group_by(parasite) %>% summarise(meanGR = mean(growth.rate))
+```
+
+Because the control happens to be the reference group, that means the p-values are actually useful, because they tell us if there is a significant difference between each treatment and the control.
+
+Now let's make a final figure, something like figure 5.11, using both the daphnia and the sumDat data frames to get it to look good.
+
+```{r}
+ggplot(daphnia, aes(parasite, growth.rate, color = parasite))+
+     geom_point(size = 3)+
+     geom_point(data = sumDat, aes(parasite, meanGR, fill = parasite), shape = 23, size = 5)+
+     coord_flip()+
+     theme_bw()
+```
 
