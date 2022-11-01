@@ -58,6 +58,7 @@ Sugar <- which (Leaves$Species == "sugar maple" | Leaves$Species == "Sugar Maple
 Leaves$Species[Sugar] <- "Sugar maple"
 Leaves$Species <- factor(Leaves$Species) #reset the factor levels
 levels(Leaves$Species) #check that it worked
+str(Leaves)
 ```
 
 Now create a new dataset by subseting to get only the sugar maple data and so that you leave out the Person, Leaf number and tree number variables. Save the result as "Sugar"
