@@ -1,0 +1,109 @@
+---
+title: "Homework 26"
+author: "Erika"
+date: "11/2/2022"
+output: html_document
+---
+Set things up
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(here)
+library(ggfortify)
+```
+
+Now let's pull in the data:
+```{r}
+soil <- read.csv(here("Data", "soil_reduced-1.csv"),stringsAsFactors = TRUE)
+```
+Before we begin any analysis, we need to check our data for possible errors/outliers. Let's begin with that.
+
+A. Forest names
+```{r}
+levels(soil$Forest)
+```
+B. Let's check soil organic matter and soil calcium
+STart with a histogram for SOM
+```{r}
+ggplot(soil, aes(x = SOM_percent))+
+     geom_histogram()
+```
+
+Now check soil calcium
+```{r}
+ggplot(soil, aes(x = Ca_ppm))+
+     geom_histogram()
+```
+
+Let's also just run a summary on all the variables:
+```{r}
+summary(soil)
+```
+
+## We'd like to ask the following questions from these data:
+
+### 1. Is there a relationship between Soil organic matter (SOM, %) and soil calcium (Ca_ppm)?
+
+Both variables are continuous
+Let's make a scatterplot
+#### Plot relationship
+```{r}
+ggplot(soil, aes(x = SOM_percent,  y = Ca_ppm, color = Forest))+
+     geom_point()+
+     theme_bw()
+```
+From looking at the data, it appears there may be a weak positive relationship b/w SOM and Ca
+
+Can I guess the slope or y-intercept?
+Slope c. 1000/53 = 18ish, y-int c. -5? 0? right around there.
+
+What statistical model fits these data?
+Both response and predictor are continuous so linear regression seems appropriate.
+
+So, let's construct the model:
+```{r}
+SOM_CA_mod <- lm(Ca_ppm ~ SOM_percent, data = soil)
+```
+Now I need to check model assumptions before interpreting.
+
+```{r}
+autoplot(SOM_CA_mod)
+```
+Based on my observations of the autoplot results, I'm modestly comfortable that my data meet the lm() assumptions.
+
+Now look at model outcome
+```{r}
+anova(SOM_CA_mod)
+```
+```{r}
+summary(SOM_CA_mod)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. Does the abundance of worms differ between Donnerville and the Kip Tract?
+
+3. Does the abundance of soil Magnesium (Mg_ppm) differ between Peavine and South Hammond?
+
+4. Does the abundance of zinc (Zn_ppm) differ among forests?
