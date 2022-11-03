@@ -78,32 +78,132 @@ anova(SOM_CA_mod)
 ```{r}
 summary(SOM_CA_mod)
 ```
+That is how far we got in class. Now we need to make a plot that shows the trend line.
+
+Now let's make a figure that shows off our relationship in light of our statistical results.
+
+```{r}
+ggplot(soil, aes(SOM_percent, Ca_ppm))+
+     geom_point()+
+     geom_smooth(method = "lm")+
+     ylab("Calcium (parts per million)")+
+     theme_bw()
+```
+This explains why my original estimate for slope and y-intercept was wrong - when I eyeballed the figure, I thought the line would be steeper.
 
 
+### 2. Does the abundance of worms differ between Donnerville and the Kip Tract?
+
+Now let's go through the process again.
+
+We'll filter the data down to just Donnerville and Kip Tract, but before we do so, we need to make sure that the forest names are ok so that we don't miss anything.
+```{r}
+levels(soil$Forest)
+```
+Looks good. Now let's filter to just the data we need.
+
+```{r}
+worms<-soil %>% filter(Forest == "DONNERVILLE" | Forest == "KIP TRACT")
+
+worms$Forest<- factor(worms$Forest)
+```
+Now we'll plot the worm data to look for outliers and also run the `summary()` function..
+
+```{r}
+ggplot(worms, aes(Worms))+
+     geom_histogram()
+
+summary(worms$Worms)
+```
+These data look reasonable. So we're ok as far as error checking goes.
+
+Now we'd like to plot our data and visualize the relationship.  We need a group by and summarise first.
+
+```{r}
+totals <- worms %>% group_by(Forest) %>% summarise(total.worms = sum(Worms))
+```
+
+Because we have count data, this is a time when using a bar graph is ok.
+
+```{r}
+ggplot(totals, aes(x = Forest, y = total.worms))+
+     geom_bar(stat = "identity", position = "dodge")
+```
+It seems like there are more worms on the Kip Tract. It is a much more disturbed forest, so that isn't surprising.
+
+Now we need to think about the structure of our data. Forest is a categorical variable and the number of worms is a discrete variable, so the likely test is a Chi-square test for independence. In order to run this test, we need our data summarized in a matrix. Let's do that:
+
+We will use the function `xtabs()` to do so:
+
+```{r}
+worms.mat <- xtabs(Worms ~ Forest, data = worms)
+worms.mat
+```
+
+Now we can run the test
+```{r}
+chisq.test(worms.mat)
+```
+Interpretation
+Our null hypothesis is that there is no difference in worm abundance between the Kip Tract and Donnerville. However, these is only a tiny chance (0.0078) that we would see this difference in worm #s by chance alone, suggesting that infact we can reject our null and conclude that there are signifcantly more worms on the Kip Tract than at Donnerville.
 
 
+### 3. Does the abundance of soil Magnesium (Mg_ppm) differ between Peavine and South Hammond?
+Ok - you know the drill. We determined above that there was no problem with the Forest column so we can use it to subset the data to our focal forests.
+
+```{r}
+chem_data<-soil %>% filter(Forest == "PEAVINE" | Forest == "SOUTH HAMMOND")
+
+chem_data$Forest <- factor(chem_data$Forest)
+```
+
+Now let's plot the data. This time, how about a boxplot.
+
+```{r}
+ggplot(chem_data, aes(Forest, Mg_ppm))+
+     geom_boxplot()+
+     geom_point(alpha = 0.5)
+```
+It is possible that South Hammond has an outlier. Take a look
+```{r}
+chem_data$Mg_ppm
+```
+121 seems a bit high, but there is a 92, and quite a bit of range, so I'll keep it.
+
+Based on this view, it does appear that I could run the test. Since I have a factor variable (x) and a continuous variable (y) and since there are only two groups in my x variable, this should be a 2-sample t-test. Let's work with that.
+
+Begin by plotting the data
+
+```{r}
+ggplot(chem_data, aes(x = Mg_ppm))+
+     geom_histogram(binwidth=10)+
+     facet_wrap(~Forest, ncol = 1)+
+     theme_bw()
+```
+
+They look fairly similar, though the distribution skews far enought to the right that there may be a difference.
+
+Let's run the model
+
+Standard error is standard deviation  divided by square root of sample size
+```{r}
+worm_means<-chem_data %>% group_by(Forest) %>% summarise(
+     mean_worms = mean(Worms,na.rm = TRUE), 
+     sem_worms = (sd(Worms, na.rm = TRUE)/sqrt(length(Worms)))
+     
+)
+```
+
+### 5.3.3 The two-sample t-test analysis
+Now let's do the t-test
+```{r}
+t.test(Worms ~Forest, data = chem_data)
+```
+For some reason, some of the code breaks here. But basically, I tried:
 
 
+We cannot reject the null hypothesis. Now for a better figure:
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-2. Does the abundance of worms differ between Donnerville and the Kip Tract?
-
-3. Does the abundance of soil Magnesium (Mg_ppm) differ between Peavine and South Hammond?
 
 4. Does the abundance of zinc (Zn_ppm) differ among forests?
