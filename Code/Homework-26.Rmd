@@ -194,16 +194,71 @@ worm_means<-chem_data %>% group_by(Forest) %>% summarise(
 )
 ```
 
-### 5.3.3 The two-sample t-test analysis
 Now let's do the t-test
 ```{r}
 t.test(Worms ~Forest, data = chem_data)
 ```
-For some reason, some of the code breaks here. But basically, I tried:
-
 
 We cannot reject the null hypothesis. Now for a better figure:
 
+```{r}
+ggplot(worms, aes(Forest, Worms))+
+     geom_boxplot()+
+     geom_point(position = "jitter", size = 2, alpha = 0.5)+
+     labs(y = "Number of worms")+
+     theme_bw()
+```
 
+### 4. Does the abundance of zinc (Zn_ppm) differ among forests?
+Ok. Last one. Let's step through our process again.
 
-4. Does the abundance of zinc (Zn_ppm) differ among forests?
+Begin by checking the data. We've already looked at forests. How about zinc?
+
+```{r}
+summary(soil$Zn_ppm)
+```
+
+Looks like there could be an outlier. Let's view a histogram.
+```{r}
+ggplot(soil, aes(x = Zn_ppm))+
+     geom_histogram()
+```
+It looks reasonable that the point with value 22 might be just the tail of real values. We'll keep it.
+
+Now that I know my data are ok, I should plot the data. My x variable is categorical, y is continuous. A boxplot would be a good choice here.
+
+```{r}
+ggplot(soil, aes(Forest, Zn_ppm))+
+     geom_boxplot()+
+     geom_point(size = 2, alpha = 0.5, position = "jitter")
+```
+It looks like the zinc levels in Degrasse are pretty low but that there is a lot of spread at the other sites. So I'm not confident that there is enough between group variance relative to within group to yield a statistically significant difference overall.
+
+Time for our test
+
+This looks like a one-way ANOVA because there are more than 2 levels of my categorical variable and because my response variable is continuous.
+
+Build the model
+```{r}
+Zn_mod <- lm(Zn_ppm ~ Forest, data = soil)
+```
+Now we need to check the assumptions 
+
+```{r}
+autoplot(Zn_mod, smooth.color = NA)
+```
+Looks reasonable.
+
+So now let's look at the results of our model and do some interpretation.
+
+```{r}
+anova(Zn_mod)
+```
+From this table, we see that there is not a significant difference in mean Zinc levels among forests. The F value, which represents the ratio of between group to within group variation, is small and has a correspondingly small p-value.
+
+Let's look at the summary
+
+```{r}
+summary(Zn_mod)
+```
+
